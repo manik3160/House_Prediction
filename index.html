@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>California House Price Prediction</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @keyframes fade-in-up {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark, near-black background */
+        }
+
+        .main-container {
+            animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .form-label {
+            @apply block text-sm font-medium text-gray-300 mb-2;
+        }
+
+        .form-input {
+            @apply block w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300;
+        }
+        .form-input:focus {
+            background: rgba(31, 41, 55, 0.7); /* gray-800 with more opacity */
+        }
+        /* Style for invalid inputs */
+        .form-input:invalid {
+            border-color: #ef4444; /* red-500 */
+        }
+        
+        /* CORRECTED fix for browser autofill styles */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active{
+            -webkit-text-fill-color: #000 !important; /* Force text to be black on autofill */
+            transition: background-color 5000s ease-in-out 0s; /* Prevent background color change */
+            box-shadow: 0 0 0 30px #fff inset !important; /* Let background be white */
+        }
+
+
+        .btn {
+            @apply inline-flex items-center justify-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(90deg, #4f46e5, #818cf8);
+            border: none;
+            transition: all 0.4s ease;
+            background-size: 200% auto;
+        }
+        .btn-gradient:hover {
+            background-position: right center;
+            box-shadow: 0 0 20px rgba(129, 140, 248, 0.6);
+        }
+
+        .btn-secondary {
+            @apply text-white bg-white/10 hover:bg-white/20 focus:ring-indigo-500;
+        }
+        
+        .prose {
+            color: #d1d5db;
+        }
+        .prose ul {
+            @apply list-none p-0;
+        }
+        .prose li {
+            @apply mb-2 pl-6 relative;
+        }
+        .prose ul > li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #818cf8;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="text-white">
+
+    <div class="min-h-screen flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-xl w-full space-y-6 main-container">
+            <!-- Header Section -->
+            <div class="text-center">
+                <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl" style="text-shadow: 0 0 25px rgba(129, 140, 248, 0.5);">
+                    AI House Analyst
+                </h1>
+                <p class="mt-4 text-lg text-gray-300">Predict prices and unlock renovation insights with the power of AI.</p>
+            </div>
+
+            <!-- Prediction Form -->
+            <form id="prediction-form" class="glass-card p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <!-- Form inputs updated for better validation -->
+                    <div>
+                        <label for="longitude" class="form-label">Longitude</label>
+                        <input type="text" inputmode="decimal" pattern="^-?\d*\.?\d+$" name="longitude" id="longitude" class="form-input" placeholder="-122.23" required title="Enter a valid longitude (e.g., -122.23)">
+                    </div>
+                    <div>
+                        <label for="latitude" class="form-label">Latitude</label>
+                        <input type="text" inputmode="decimal" pattern="^-?\d*\.?\d+$" name="latitude" id="latitude" class="form-input" placeholder="37.88" required title="Enter a valid latitude (e.g., 37.88)">
+                    </div>
+                    <div>
+                        <label for="housing_median_age" class="form-label">Housing Median Age</label>
+                        <input type="text" inputmode="numeric" pattern="\d+" name="housing_median_age" id="housing_median_age" class="form-input" placeholder="41" required title="Enter a valid age (e.g., 41)">
+                    </div>
+                    <div>
+                        <label for="total_rooms" class="form-label">Total Rooms</label>
+                        <input type="text" inputmode="numeric" pattern="\d+" name="total_rooms" id="total_rooms" class="form-input" placeholder="880" required title="Enter the total number of rooms">
+                    </div>
+                    <div>
+                        <label for="total_bedrooms" class="form-label">Total Bedrooms</label>
+                        <input type="text" inputmode="numeric" pattern="\d+" name="total_bedrooms" id="total_bedrooms" class="form-input" placeholder="129" required title="Enter the total number of bedrooms">
+                    </div>
+                    <div>
+                        <label for="population" class="form-label">Population</label>
+                        <input type="text" inputmode="numeric" pattern="\d+" name="population" id="population" class="form-input" placeholder="322" required title="Enter the population number">
+                    </div>
+                    <div>
+                        <label for="households" class="form-label">Households</label>
+                        <input type="text" inputmode="numeric" pattern="\d+" name="households" id="households" class="form-input" placeholder="126" required title="Enter the number of households">
+                    </div>
+                    <div>
+                        <label for="median_income" class="form-label">Median Income (x$10k)</label>
+                        <input type="text" inputmode="decimal" pattern="\d*\.?\d+$" name="median_income" id="median_income" class="form-input" placeholder="8.3252" required title="Enter a valid median income (e.g., 8.3252)">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="ocean_proximity" class="form-label">Ocean Proximity</label>
+                        <select name="ocean_proximity" id="ocean_proximity" class="form-input" required>
+                            <option value="NEAR BAY">&lt;1H OCEAN</option>
+                            <option value="INLAND">INLAND</option>
+                            <option value="NEAR OCEAN">NEAR OCEAN</option>
+                            <option value="ISLAND">ISLAND</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-2">
+                    <button type="submit" class="btn btn-gradient w-full text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="button-icon"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        <span id="button-text">Predict Price</span>
+                        <svg id="loading-spinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Result Display -->
+            <div id="result-container" class="hidden glass-card p-8 space-y-6">
+                <div class="text-center">
+                    <h2 class="text-xl font-semibold text-gray-200">Predicted House Value</h2>
+                    <p id="prediction-result" class="text-5xl font-bold text-indigo-400 mt-2" style="text-shadow: 0 0 20px rgba(129, 140, 248, 0.5);"></p>
+                </div>
+                
+                <!-- Gemini Feature Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    <button id="location-insights-btn" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>Location Insights</span>
+                    </button>
+                    <button id="renovation-ideas-btn" class="btn btn-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 1-6 6 2 2 6-6-2-2Z"/><path d="m2 22 6-6-2-2-6 6 2 2Z"/><path d="M7.5 2.5 19 13.5"/><path d="m2 22 6-6-2-2-6 6 2 2Z"/><path d="M10.5 13.5 9 15l-2.5-2.5L8 11Z"/></svg>
+                        <span>Renovation Ideas</span>
+                    </button>
+                </div>
+
+                <!-- Gemini Output Area -->
+                <div id="gemini-output-container" class="hidden text-left pt-6 border-t border-gray-700">
+                    <h3 id="gemini-output-title" class="text-xl font-semibold text-white mb-3"></h3>
+                    <div id="gemini-loading" class="flex items-center justify-center p-4">
+                         <svg class="animate-spin h-8 w-8 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <div id="gemini-output-text" class="prose max-w-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('prediction-form');
+        const resultContainer = document.getElementById('result-container');
+        const predictionResult = document.getElementById('prediction-result');
+        const buttonText = document.getElementById('button-text');
+        const buttonIcon = document.getElementById('button-icon');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        const locationInsightsBtn = document.getElementById('location-insights-btn');
+        const renovationIdeasBtn = document.getElementById('renovation-ideas-btn');
+        const geminiOutputContainer = document.getElementById('gemini-output-container');
+        const geminiOutputTitle = document.getElementById('gemini-output-title');
+        const geminiLoading = document.getElementById('gemini-loading');
+        const geminiOutputText = document.getElementById('gemini-output-text');
+
+        let currentData = {};
+        let currentPrediction = 0;
+
+        // Main form submission for price prediction
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            buttonText.classList.add('hidden');
+            if (buttonIcon) buttonIcon.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+            
+            resultContainer.classList.add('hidden');
+            geminiOutputContainer.classList.add('hidden');
+            resultContainer.style.animation = 'none';
+
+            const formData = new FormData(form);
+            currentData = Object.fromEntries(formData.entries());
+
+            Object.keys(currentData).forEach(key => {
+                if (key !== 'ocean_proximity') {
+                    currentData[key] = parseFloat(currentData[key]);
+                }
+            });
+
+            try {
+                // ** REPLACE THIS MOCK LOGIC WITH YOUR MODEL'S API CALL **
+                await new Promise(resolve => setTimeout(resolve, 1500)); 
+                const mockPredictedPrice = 250000 + (Math.random() * 150000);
+                currentPrediction = mockPredictedPrice;
+                // ** End of mock logic **
+
+                predictionResult.textContent = `$${currentPrediction.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+                resultContainer.classList.remove('hidden');
+                resultContainer.style.animation = 'fade-in-up 0.5s ease-out forwards';
+
+            } catch (error) {
+                console.error('Error:', error);
+                predictionResult.textContent = 'Could not get prediction.';
+                resultContainer.classList.remove('hidden');
+            } finally {
+                buttonText.classList.remove('hidden');
+                if (buttonIcon) buttonIcon.classList.remove('hidden');
+                loadingSpinner.classList.add('hidden');
+            }
+        });
+
+        // Event listener for Location Insights button
+        locationInsightsBtn.addEventListener('click', () => {
+            const prompt = `You are a helpful real estate expert. Based on the location with latitude ${currentData.latitude} and longitude ${currentData.longitude} in California, and a predicted house price of $${currentPrediction.toLocaleString()}, provide a friendly and informative overview of the neighborhood. Include details about potential lifestyle, nearby amenities like parks or restaurants, and the general character of the area. Format the response as a single, easy-to-read paragraph.`;
+            getGeminiResponse(prompt, 'Location Insights');
+        });
+
+        // Event listener for Renovation Ideas button
+        renovationIdeasBtn.addEventListener('click', () => {
+            const prompt = `You are a home renovation advisor. For a house in California with the following details: Age: ${currentData.housing_median_age} years, Total Rooms: ${currentData.total_rooms}, Total Bedrooms: ${currentData.total_bedrooms}, suggest 2-3 specific renovation ideas that could improve its value and appeal. Explain why each suggestion is a good idea. Present this as a bulleted list using markdown.`;
+            getGeminiResponse(prompt, 'Renovation Ideas');
+        });
+
+        /**
+         * Calls the Gemini API with a given prompt and displays the result.
+         * @param {string} prompt - The prompt to send to the Gemini API.
+         * @param {string} title - The title to display for the output.
+         */
+        async function getGeminiResponse(prompt, title) {
+            geminiOutputTitle.textContent = title;
+            geminiOutputText.innerHTML = '';
+            geminiLoading.style.display = 'flex';
+            geminiOutputContainer.classList.remove('hidden');
+            geminiOutputContainer.style.animation = 'fade-in-up 0.5s ease-out forwards';
+
+            const apiKey = ""; // The Canvas environment will provide the key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API call failed with status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0) {
+                    const rawText = result.candidates[0].content.parts[0].text;
+                    geminiOutputText.innerHTML = simpleMarkdownToHtml(rawText);
+                } else {
+                    geminiOutputText.textContent = 'Sorry, I could not generate a response.';
+                }
+
+            } catch (error) {
+                console.error('Gemini API Error:', error);
+                geminiOutputText.textContent = 'An error occurred while fetching insights. Please try again.';
+            } finally {
+                geminiLoading.style.display = 'none';
+            }
+        }
+
+        /**
+         * A simple function to convert basic markdown to HTML.
+         * Handles paragraphs and bullet points.
+         * @param {string} text - The markdown text.
+         * @returns {string} - The converted HTML.
+         */
+        function simpleMarkdownToHtml(text) {
+            const lines = text.split('\n').filter(line => line.trim() !== '');
+            let html = '';
+            let inList = false;
+
+            for (const line of lines) {
+                if (line.trim().startsWith('*')) {
+                    if (!inList) {
+                        html += '<ul>';
+                        inList = true;
+                    }
+                    html += `<li>${line.trim().substring(1).trim()}</li>`;
+                } else {
+                    if (inList) {
+                        html += '</ul>';
+                        inList = false;
+                    }
+                    html += `<p>${line}</p>`;
+                }
+            }
+
+            if (inList) {
+                html += '</ul>';
+            }
+
+            return html;
+        }
+    </script>
+
+</body>
+</html>
