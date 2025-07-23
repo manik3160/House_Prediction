@@ -3,105 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>California House Price Prediction</title>
+    <title> House Price Prediction</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        @keyframes fade-in-up {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+     <style>
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #111827; /* Dark, near-black background */
-        }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #111827;
+    }
 
-        .main-container {
-            animation: fade-in-up 0.8s ease-out forwards;
-        }
+    .main-container {
+      animation: fade-in-up 0.8s ease-out forwards;
+    }
 
-        /* Glassmorphism Effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s ease;
-        }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      transition: all 0.3s ease;
+    }
 
-        .form-label {
-            @apply block text-sm font-medium text-gray-300 mb-2;
-        }
+    .form-label {
+      @apply block text-sm font-medium text-gray-300 mb-2;
+    }
 
-        .form-input {
-            @apply block w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300;
-        }
-        .form-input:focus {
-            background: rgba(31, 41, 55, 0.7); /* gray-800 with more opacity */
-        }
-        /* Style for invalid inputs */
-        .form-input:invalid {
-            border-color: #ef4444; /* red-500 */
-        }
-        
-        /* CORRECTED fix for browser autofill styles */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
-        input:-webkit-autofill:active{
-            -webkit-text-fill-color: #000 !important; /* Force text to be black on autofill */
-            transition: background-color 5000s ease-in-out 0s; /* Prevent background color change */
-            box-shadow: 0 0 0 30px #fff inset !important; /* Let background be white */
-        }
+    .form-input {
+      @apply block w-full px-4 py-2.5 bg-gray-800/60 border border-gray-700 rounded-lg shadow-sm text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-300;
+    }
 
+    .form-input:focus {
+      background: rgba(31, 41, 55, 0.7);
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.4);
+    }
 
-        .btn {
-            @apply inline-flex items-center justify-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105;
-        }
+    .form-input:invalid {
+      border-color: #ef4444;
+    }
 
-        .btn-gradient {
-            background: linear-gradient(90deg, #4f46e5, #818cf8);
-            border: none;
-            transition: all 0.4s ease;
-            background-size: 200% auto;
-        }
-        .btn-gradient:hover {
-            background-position: right center;
-            box-shadow: 0 0 20px rgba(129, 140, 248, 0.6);
-        }
+    /* Fixed Autofill Styles for Dark Mode */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
+    input:-webkit-autofill:active {
+      -webkit-text-fill-color: #ffffff !important;
+      box-shadow: 0 0 0 30px #1f2937 inset !important; /* gray-800 */
+      transition: background-color 5000s ease-in-out 0s;
+    }
 
-        .btn-secondary {
-            @apply text-white bg-white/10 hover:bg-white/20 focus:ring-indigo-500;
-        }
-        
-        .prose {
-            color: #d1d5db;
-        }
-        .prose ul {
-            @apply list-none p-0;
-        }
-        .prose li {
-            @apply mb-2 pl-6 relative;
-        }
-        .prose ul > li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #818cf8;
-            font-weight: bold;
-        }
-    </style>
+    select.form-input {
+      @apply appearance-none bg-gray-800/60 text-white focus:ring-indigo-500 focus:border-indigo-500;
+    }
+
+    .btn {
+      @apply inline-flex items-center justify-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:scale-105;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(90deg, #4f46e5, #818cf8);
+      border: none;
+      transition: all 0.4s ease;
+      background-size: 200% auto;
+    }
+
+    .btn-gradient:hover {
+      background-position: right center;
+      box-shadow: 0 0 20px rgba(129, 140, 248, 0.6);
+    }
+
+    .btn-secondary {
+      @apply text-white bg-white/10 hover:bg-white/20 focus:ring-indigo-500;
+    }
+
+    .prose {
+      color: #d1d5db;
+    }
+
+    .prose ul {
+      @apply list-none p-0;
+    }
+
+    .prose li {
+      @apply mb-2 pl-6 relative;
+    }
+
+    .prose ul > li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: #818cf8;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body class="text-white">
 
